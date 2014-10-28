@@ -1,0 +1,5 @@
+name: DartVarDeclTransform
+description: Command line tool for removing multi-vardecls in dart programs.
+dependencies:
+  analyzer: any
+  args: any
