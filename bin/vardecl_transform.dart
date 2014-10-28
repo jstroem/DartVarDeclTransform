@@ -20,13 +20,7 @@ main(List<String> args) {
     File file = new File(arg);
     var src = file.readAsStringSync();
     FormattedSource fs = cf.format(CodeKind.COMPILATION_UNIT, src);
-    try {
     fs = finisher.format(CodeKind.COMPILATION_UNIT, fs.source);
-    } catch (e){
-      print("error during formatting: ${e}");
-      print(fs.source);
-      exit(15);
-    }
     
     if (results['override'])
       file.writeAsStringSync(fs.source);
