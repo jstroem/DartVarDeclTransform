@@ -1,7 +1,6 @@
 #!/usr/bin/env dart
 
 import 'dart:io';
-import 'dart:math';
 import 'package:analyzer/src/services/formatter_impl.dart';
 import 'package:analyzer/src/generated/ast.dart';
 import 'package:analyzer/src/generated/scanner.dart';
@@ -41,18 +40,41 @@ class VarDeclFormatterImpl extends CodeFormatterImpl {
     checkForErrors();
 
     var node = parse(kind, startToken);
+    
     checkForErrors();
 
+    node = new ForloopVariableLift().visitCompilationUnit(node);
     var t = node.toString();
     
     var formatter = new VarDeclFormatSourceVisitor(options, lineInfo, source, selection);
     node.accept(formatter);
     formatter = new VarDeclFormatSourceVisitor(options, lineInfo, source, selection);
     node.accept(formatter);
+    
+    formatter = new SourceVisitor(options, lineInfo, source, selection);
+    node.accept(formatter);
 
     var formattedSource = formatter.writer.toString();
 
     return new FormattedSource(formattedSource, formatter.selection);
+  }
+}
+
+class ForloopVariableLift extends AstCloner {
+  visitForStatement(ForStatement node) {
+    if (node.variables.variables.length > 1) {
+      var variables = cloneNode(node.variables);
+      node.variables = null;
+      var res = super.visitForStatement(node);
+      
+      Token open  = new Token(TokenType.OPEN_CURLY_BRACKET, node.offset),
+            close = new Token(TokenType.CLOSE_CURLY_BRACKET, node.endToken.offset),
+            semi  = new Token(TokenType.SEMICOLON, node.offset);
+
+      return new Block(open, [new VariableDeclarationStatement(variables, semi), res], close);
+    } else {
+       return super.visitForStatement(node);
+    }
   }
 }
 
