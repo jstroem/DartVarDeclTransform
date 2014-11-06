@@ -14,7 +14,7 @@ main(List<String> args) {
   List<String> files = results.rest;
   
   for (String arg in files) {
-    CodeFormatterImpl cf = new VarDeclFormatterImpl(const FormatterOptions());
+    CodeFormatterImpl cf = new VarDeclFormatterImpl(const FormatterOptions(pageWidth: -1));
     CodeFormatter finisher = new CodeFormatter();
     File file = new File(arg);
     var src = file.readAsStringSync();
@@ -62,7 +62,7 @@ class VarDeclFormatterImpl extends CodeFormatterImpl {
 
 class ForloopVariableLift extends AstCloner {
   visitForStatement(ForStatement node) {
-    if (node.variables.variables.length > 1) {
+    if (node.variables != null && node.variables.variables.length > 1) {
       var variables = cloneNode(node.variables);
       node.variables = null;
       var res = super.visitForStatement(node);
@@ -137,6 +137,37 @@ class VarDeclFormatSourceVisitor extends SourceVisitor {
           block.statements.insert(block.statements.indexOf(varDeclStatement) + 1, varDeclStmtCopy);
           //this.visitVariableDeclarationStatement(varDeclStmtCopy);
         }
+      } else if (node.parent is VariableDeclarationStatement && node.parent.parent is SwitchCase) {
+        VariableDeclarationStatement varDeclStatement = node.parent;
+        SwitchCase block = varDeclStatement.parent;
+        
+        VariableDeclaration v = node.variables[0];
+        node.variables.clear();
+        node.variables.add(v);
+        super.visitVariableDeclarationList(node);
+        
+        for(v in varsToTransform){
+          VariableDeclarationList varDeclList = new VariableDeclarationList(node.documentationComment, node.metadata, node.keyword, node.type, [v]);
+          VariableDeclarationStatement varDeclStmtCopy = new VariableDeclarationStatement(varDeclList, varDeclStatement.semicolon);
+          block.statements.insert(block.statements.indexOf(varDeclStatement) + 1, varDeclStmtCopy);
+          //this.visitVariableDeclarationStatement(varDeclStmtCopy);
+        }
+      } else if (node.parent is VariableDeclarationStatement && node.parent.parent is SwitchDefault) {
+        VariableDeclarationStatement varDeclStatement = node.parent;
+        SwitchDefault block = varDeclStatement.parent;
+        
+        VariableDeclaration v = node.variables[0];
+        node.variables.clear();
+        node.variables.add(v);
+        super.visitVariableDeclarationList(node);
+        
+        for(v in varsToTransform){
+          VariableDeclarationList varDeclList = new VariableDeclarationList(node.documentationComment, node.metadata, node.keyword, node.type, [v]);
+          VariableDeclarationStatement varDeclStmtCopy = new VariableDeclarationStatement(varDeclList, varDeclStatement.semicolon);
+          block.statements.insert(block.statements.indexOf(varDeclStatement) + 1, varDeclStmtCopy);
+          //this.visitVariableDeclarationStatement(varDeclStmtCopy);
+        }
+
       } else if (node.parent is TopLevelVariableDeclaration && node.parent.parent is CompilationUnit){
         TopLevelVariableDeclaration varDecl = node.parent;
         CompilationUnit unit = varDecl.parent;
