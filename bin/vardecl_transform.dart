@@ -15,7 +15,7 @@ main(List<String> args) {
   
   for (String arg in files) {
     CodeFormatterImpl cf = new VarDeclFormatterImpl(const FormatterOptions(pageWidth: -1));
-    CodeFormatter finisher = new CodeFormatter();
+    CodeFormatter finisher = new CodeFormatter(const FormatterOptions(pageWidth: -1));
     File file = new File(arg);
     var src = file.readAsStringSync();
     FormattedSource fs = cf.format(CodeKind.COMPILATION_UNIT, src);
@@ -116,8 +116,8 @@ class VarDeclFormatSourceVisitor extends SourceVisitor {
         ClassMember lastFieldDecl = fieldDecl;
         var i = 1;
         for(v in varsToTransform){
-          VariableDeclarationList varDeclList = new VariableDeclarationList(node.documentationComment, node.metadata, node.keyword, node.type, [v]);
-          FieldDeclaration fieldDeclCopy = new FieldDeclaration(fieldDecl.documentationComment, fieldDecl.metadata, fieldDecl.staticKeyword, varDeclList, fieldDecl.semicolon);
+          VariableDeclarationList varDeclList = new VariableDeclarationList(null, null, node.keyword, node.type, [v]);
+          FieldDeclaration fieldDeclCopy = new FieldDeclaration(null, null, fieldDecl.staticKeyword, varDeclList, fieldDecl.semicolon);
           classDecl.members.insert(classDecl.members.indexOf(lastFieldDecl) + i++, fieldDeclCopy);
           //this.visitFieldDeclaration(fieldDeclCopy);
         }
@@ -132,7 +132,7 @@ class VarDeclFormatSourceVisitor extends SourceVisitor {
         super.visitVariableDeclarationList(node);
         
         for(v in varsToTransform){
-          VariableDeclarationList varDeclList = new VariableDeclarationList(node.documentationComment, node.metadata, node.keyword, node.type, [v]);
+          VariableDeclarationList varDeclList = new VariableDeclarationList(null, null, node.keyword, node.type, [v]);
           VariableDeclarationStatement varDeclStmtCopy = new VariableDeclarationStatement(varDeclList, varDeclStatement.semicolon);
           block.statements.insert(block.statements.indexOf(varDeclStatement) + 1, varDeclStmtCopy);
           //this.visitVariableDeclarationStatement(varDeclStmtCopy);
@@ -147,7 +147,7 @@ class VarDeclFormatSourceVisitor extends SourceVisitor {
         super.visitVariableDeclarationList(node);
         
         for(v in varsToTransform){
-          VariableDeclarationList varDeclList = new VariableDeclarationList(node.documentationComment, node.metadata, node.keyword, node.type, [v]);
+          VariableDeclarationList varDeclList = new VariableDeclarationList(null, null, node.keyword, node.type, [v]);
           VariableDeclarationStatement varDeclStmtCopy = new VariableDeclarationStatement(varDeclList, varDeclStatement.semicolon);
           block.statements.insert(block.statements.indexOf(varDeclStatement) + 1, varDeclStmtCopy);
           //this.visitVariableDeclarationStatement(varDeclStmtCopy);
@@ -162,7 +162,7 @@ class VarDeclFormatSourceVisitor extends SourceVisitor {
         super.visitVariableDeclarationList(node);
         
         for(v in varsToTransform){
-          VariableDeclarationList varDeclList = new VariableDeclarationList(node.documentationComment, node.metadata, node.keyword, node.type, [v]);
+          VariableDeclarationList varDeclList = new VariableDeclarationList(null, null, node.keyword, node.type, [v]);
           VariableDeclarationStatement varDeclStmtCopy = new VariableDeclarationStatement(varDeclList, varDeclStatement.semicolon);
           block.statements.insert(block.statements.indexOf(varDeclStatement) + 1, varDeclStmtCopy);
           //this.visitVariableDeclarationStatement(varDeclStmtCopy);
@@ -178,8 +178,8 @@ class VarDeclFormatSourceVisitor extends SourceVisitor {
         super.visitVariableDeclarationList(node);
         
         for(v in varsToTransform){
-          VariableDeclarationList varDeclList = new VariableDeclarationList(node.documentationComment, node.metadata, node.keyword, node.type, [v]);
-          TopLevelVariableDeclaration varDeclCopy = new TopLevelVariableDeclaration(varDecl.documentationComment, varDecl.metadata, varDeclList, varDecl.semicolon);
+          VariableDeclarationList varDeclList = new VariableDeclarationList(null, null, node.keyword, node.type, [v]);
+          TopLevelVariableDeclaration varDeclCopy = new TopLevelVariableDeclaration(null, null, varDeclList, varDecl.semicolon);
           unit.declarations.insert(unit.declarations.indexOf(varDecl) + 1, varDeclCopy);
           //this.visitTopLevelVariableDeclaration(varDeclCopy);
         }
